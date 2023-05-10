@@ -21,7 +21,7 @@ using BufferT = nanovdb::CudaDeviceBuffer;
 using BufferT = nanovdb::HostBuffer;
 #endif
 
-void runOpenVDB(nanovdb::GridHandle<BufferT>& handle, int numIterations, int width, int height, BufferT& imageBuffer)
+void runOpenVDB(nanovdb::GridHandle<BufferT>& handle, int numIterations, std::string& imagePostFix, int width, int height, BufferT& imageBuffer)
 {
     using GridT = openvdb::FloatGrid;
     using CoordT = openvdb::Coord;
@@ -64,7 +64,11 @@ void runOpenVDB(nanovdb::GridHandle<BufferT>& handle, int numIterations, int wid
             // clip to bounds.
             if (iRay.clip(treeIndexBbox) == false) {
                 compositeOp(image, i, width, height, 0.0f, 0.0f);
+#ifdef __CUDA_ARCH__
                 return;
+#else
+                continue;
+#endif
             }
             // integrate...
             const float dt = 0.5f;
@@ -88,7 +92,7 @@ void runOpenVDB(nanovdb::GridHandle<BufferT>& handle, int numIterations, int wid
         durationAvg /= numIterations;
         std::cout << "Average Duration(OpenVDB-Host) = " << durationAvg << " ms" << std::endl;
 
-        saveImage("raytrace_fog_volume-openvdb-host.pfm", width, height, (float*)imageBuffer.data());
+        saveImage(std::string("raytrace_fog_volume") + imagePostFix + "-openvdb-host.pfm", width, height, (float*)imageBuffer.data());
     }
 }
 

@@ -57,6 +57,24 @@ inline float renderImage(bool useCuda, const RenderFn renderOp, int width, int h
     return duration;
 }
 
+// \brief renderImageHost facilitates running renderOps that call functions not declared __hostdev__
+template<typename RenderFn, typename GridT>
+inline float renderImageHost(const RenderFn renderOp, int width, int height, float* image, const GridT* grid)
+{
+    using ClockT = std::chrono::high_resolution_clock;
+    auto t0 = ClockT::now();
+
+    computeForEachHost(
+        width * height, 512, __FILE__, __LINE__, [renderOp, image, grid] (int start, int end) {
+        renderOp(start, end, image, grid);
+    });
+    computeSync(/*useCuda*/ false, __FILE__, __LINE__);
+
+    auto t1 = ClockT::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() / 1000.f;
+    return duration;
+}
+
 inline void saveImage(const std::string& filename, int width, int height, const float* image)
 {
     const auto isLittleEndian = []() -> bool {

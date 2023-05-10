@@ -203,6 +203,10 @@ endif()
 
 if(NANOVDB_USE_INTRINSICS)
   target_compile_definitions(nanovdb INTERFACE -DNANOVDB_USE_INTRINSICS)
+  add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-msse4.2>")
+  if (NOT WIN32)
+    add_compile_options("$<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:-msse4.2>")
+  endif()
 endif()
 
 if(NANOVDB_USE_OPENVDB)
@@ -259,6 +263,31 @@ set(NANOVDB_INSTALL_UTILDIR ${NANOVDB_INSTALL_INCLUDEDIR}/util)
 
 install(FILES ${NANOVDB_INCLUDE_FILES} DESTINATION ${NANOVDB_INSTALL_INCLUDEDIR})
 install(FILES ${NANOVDB_INCLUDE_UTILFILES} DESTINATION ${NANOVDB_INSTALL_UTILDIR})
+
+
+# NanoVTT header files
+set(NANOVTT_INCLUDE_FILES
+  nanovtt/NanoVTT.h
+  nanovtt/PNanoVTT.h
+)
+
+# NanoVTT util header files
+set(NANOVTT_INCLUDE_UTILFILES
+  nanovtt/util/GridChecksum.h
+  nanovtt/util/GridHandle.h
+  nanovtt/util/HDDA.h
+  nanovtt/util/IO.h
+  nanovtt/util/Primitives.h
+  nanovtt/util/Quantization.h
+  nanovtt/util/SampleFromVoxels.h
+)
+
+# NanoVTT install
+set(NANOVTT_INSTALL_INCLUDEDIR ${NANOVDB_INSTALL_INCLUDEDIR}/nanovtt)
+set(NANOVTT_INSTALL_UTILDIR ${NANOVTT_INSTALL_INCLUDEDIR}/util)
+
+install(FILES ${NANOVTT_INCLUDE_FILES} DESTINATION ${NANOVTT_INSTALL_INCLUDEDIR})
+install(FILES ${NANOVTT_INCLUDE_UTILFILES} DESTINATION ${NANOVTT_INSTALL_UTILDIR})
 
 ###############################################################################
 # Options

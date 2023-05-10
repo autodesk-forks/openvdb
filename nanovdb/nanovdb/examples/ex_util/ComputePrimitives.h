@@ -166,6 +166,21 @@ inline void computeForEach(bool useCuda, int numItems, int blockSize, const char
     }
 }
 
+template<typename FunctorT, typename... Args>
+inline void computeForEachHost(int numItems, int blockSize, const char* file, int line, const FunctorT& op, Args... args)
+{
+    if (numItems == 0)
+        return;
+
+#if defined(NANOVDB_USE_TBB)
+	tbb::blocked_range<int> range(0, numItems, blockSize);
+	tbb::parallel_for(range, ApplyFunc<FunctorT, Args...>(numItems, blockSize, op, args...));
+#else
+	for (int i = 0; i < numItems; ++i)
+		op(i, i + 1, args...);
+#endif
+}
+
 inline void computeDownload(bool useCuda, void* dst, const void* src, size_t size)
 {
     if (useCuda) {

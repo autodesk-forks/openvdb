@@ -255,6 +255,8 @@ if(OPENVDB_DOXYGEN_NANOVDB)
     nanovdb/nanovdb/examples/ex_util
     nanovdb/nanovdb/examples/ex_vox_to_nanovdb
     nanovdb/nanovdb/examples/ex_write_nanovdb_grids
+    nanovdb/nanovdb/nanovtt
+    nanovdb/nanovdb/nanovtt/util
     nanovdb/nanovdb/unittest)
 endif()
 
